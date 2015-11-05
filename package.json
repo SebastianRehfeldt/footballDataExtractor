@@ -1,0 +1,22 @@
+{
+  "name": "footballextractor",
+  "version": "1.0.0",
+  "description": "extract football data from football-data.org",
+  "main": "database.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SebastianRehfeldt/footballDataExtractor.git"
+  },
+  "author": "Sebastian Rehfeldt",
+  "license": "ISC",
+  "private": true,
+  "dependencies": {
+    "fs": "0.0.2",
+    "q": "^1.4.1",
+    "request": "^2.65.0",
+    "sqlite3": "^3.1.1"
+  }
+}

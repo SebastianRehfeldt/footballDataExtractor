@@ -13,12 +13,12 @@ db.serialize(function() {
 });
 
 function setUpDatabase(){
-    db.run("CREATE TABLE Seasons(id INTEGER PRIMARY KEY,caption TEXT,league TEXT,year INTEGER,numberOfTeams INTEGER,lastUpdated TEXT,leagueTable INTEGER,FOREIGN KEY (leagueTable) REFERENCES LeagueTables(id))")
+    db.run("CREATE TABLE Seasons(id INTEGER PRIMARY KEY,caption TEXT,league TEXT,year INTEGER,numberOfTeams INTEGER,lastUpdated TEXT,leagueTable INTEGER,FOREIGN KEY (leagueTable) REFERENCES LeagueTables(id));")
     db.run("CREATE TABLE Teams(id INTEGER PRIMARY KEY,name TEXT,code TEXT,shortName TEXT,squadMarketValue TEXT,crestUrl TEXT);")
     db.run("CREATE TABLE Players(id INTEGER PRIMARY Key,name TEXT,position TEXT,jerseyNumber INTEGER,dateOfBirth TEXT,nationality TEXT,contractUntil TEXT,marketValue TEXT);")
-    db.run("CREATE TABLE TeamsToPlayers(teamId INTEGER,playerId INTEGER,FOREIGN KEY(teamId) REFERENCES(Teams.id)FOREIGN KEY(playerId) REFERENCES(Players.id));")
-    db.run("CREATE TABLE TeamsToSeasons(seasonId INTEGER,teamId INTEGER,FOREIGN KEY(seasonId) REFERENCES(Seasons.id)FOREIGN KEY(teamId) REFERENCES(Teams.id));")
-    db.run("CREATE TABLE LeagueTables(id INTEGER,leagueCaption TEXT,matchday INTEGER,position INTEGER,teamId INTEGER,playedGames INTEGER,points INTEGER,goals INTEGER,goalsAgainst INTEGER,goalsDifference INTEGER,wins INTEGER,draws INTEGER,losses INTEGER,homeGoals INTEGER,homeGoalsAgainst INTEGER,homeWins INTEGER,homeDraws INTEGER,homeLosses INTEGER,awayGoals INTEGER,awayGoalsAgainst INTEGER,awayWins INTEGER,awayDraws INTEGER,awayLosses INTEGER,FOREIGN KEY(teamId) REFERENCES(Teams.id)")
+    db.run("CREATE TABLE TeamsToPlayers(teamId INTEGER,playerId INTEGER,FOREIGN KEY(teamId) REFERENCES Teams(id), FOREIGN KEY(playerId) REFERENCES Players(id));")
+    db.run("CREATE TABLE TeamsToSeasons(seasonId INTEGER,teamId INTEGER,FOREIGN KEY(seasonId) REFERENCES Seasons(id), FOREIGN KEY(teamId) REFERENCES Teams(id));")
+    db.run("CREATE TABLE LeagueTables(id INTEGER,leagueCaption TEXT,matchday INTEGER,position INTEGER,teamId INTEGER,playedGames INTEGER,points INTEGER,goals INTEGER,goalsAgainst INTEGER,goalsDifference INTEGER,wins INTEGER,draws INTEGER,losses INTEGER,homeGoals INTEGER,homeGoalsAgainst INTEGER,homeWins INTEGER,homeDraws INTEGER,homeLosses INTEGER,awayGoals INTEGER,awayGoalsAgainst INTEGER,awayWins INTEGER,awayDraws INTEGER,awayLosses INTEGER,FOREIGN KEY(teamId) REFERENCES Teams(id));")
 }
 
 exports.addMovie = function(movie){
