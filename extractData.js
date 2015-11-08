@@ -70,8 +70,9 @@ function crawlTeamsForSeason(id){
 
 function getTeamsForSeasons(){
     db.getSeasonsWithUncrawledTeams().
-        then(function(seasons){        
-            for(var i=0;i<seasons.length;i++){
+        then(function(seasons){    
+            console.log(seasons)    
+            for(var i=0;i<1;i++){
                 crawlTeamsForSeason(seasons[i].id).
                     then(function(result){
                         db.addTeams(result).
@@ -79,8 +80,7 @@ function getTeamsForSeasons(){
                                 console.log("Added teams for season: "+season)
                             })
                     })
-            }
-            
+            }            
     })
 }
 
@@ -129,3 +129,46 @@ function getTablesForSeasons(){
 
 
 
+function crawlPlayersForTeam(id){
+    var deferred = q.defer()
+    var endpoint = "teams/"+id+"/players"
+
+    var parameters = {
+        url: "http://api.football-data.org/alpha/" + endpoint,
+        headers: {
+            'Accept': 'application/json',
+            'X-Auth-Token': api_key
+        },
+        json: true,
+        gzip: true,
+        type: "GET"
+    }
+
+    request(parameters, function (error, response, body) {
+        if(body){
+            deferred.resolve(body)
+        }else {
+            deferred.reject()
+        }
+    })
+
+    return deferred.promise
+}
+
+function getPlayerForTeams(){
+    db.getTeamsWithUncrawledPlayers().
+        then(function(teams){
+            console.log(teams.length)
+            for(var i=0;i<20;i++){
+                crawlPlayersForTeam(teams[i].id).
+                    then(function(result){
+                        db.addPlayers(result).
+                            then(function(response){
+                                console.log(response)
+                            })
+                    })
+            }
+        })
+}
+
+getPlayerForTeams()

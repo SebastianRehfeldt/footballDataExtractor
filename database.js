@@ -46,7 +46,7 @@ exports.getSeasonsWithUncrawledTeams = function(){
 
     db.serialize(function() {
         //teams which play in CL are already added in their home country seasons
-        db.all("SELECT id FROM Seasons WHERE NOT EXISTS (SELECT id FROM TeamsToSeasons) AND league<>'CL';", function(err, rows) {
+        db.all("SELECT id FROM Seasons WHERE id NOT IN (SELECT id FROM TeamsToSeasons) AND league<>'CL';", function(err, rows) {
 
             deferred.resolve(rows)
 
@@ -90,7 +90,7 @@ exports.getSeasonsWithUncrawledTable = function(){
 
     db.serialize(function() {
         //there is no table for champions league
-        db.all("SELECT id FROM Seasons WHERE NOT EXISTS (SELECT id FROM LeagueTables) AND league<>'CL';", function(err, rows) { 
+        db.all("SELECT id FROM Seasons WHERE id NOT IN (SELECT id FROM LeagueTables) AND league<>'CL';", function(err, rows) { 
 
             deferred.resolve(rows)
 
@@ -124,6 +124,48 @@ exports.addTable = function(table){
         }     
 
         deferred.resolve(seasonId)
+    });
+
+    return deferred.promise
+}
+
+
+
+
+exports.getTeamsWithUncrawledPlayers = function(){
+    var deferred = q.defer()
+
+    db.serialize(function() {
+        db.all("SELECT id FROM Teams WHERE id NOT IN (SELECT teamId FROM TeamsToPlayers);", function(err, rows) {
+            deferred.resolve(rows)
+        });
+    });
+
+    return deferred.promise
+}
+exports.addPlayers = function(players){
+    var deferred = q.defer()
+
+    db.serialize(function() {
+
+        var stmtPlayers = db.prepare("INSERT INTO Players (id, name, position, jerseyNumber, dateOfBirth, nationality, contractUntil, marketValue)  VALUES  (?,?,?,?,?,?,?,?)")
+        var stmtTeamsToPlayers = db.prepare("INSERT INTO TeamsToPlayers (teamId,playerId) VALUES (?,?)")
+
+        var teamLink = players["_links"].team.href
+        var teamId = teamLink.substring(teamLink.lastIndexOf("/")+1,teamLink.length)
+
+        if(players.count==0){
+            stmtTeamsToPlayers.run(teamId,-1)
+            deferred.resolve("No players for team:"+teamId)
+        }
+        else{
+            for(var i=0;i<players.count;i++){
+                var player=players.players[i]
+                stmtPlayers.run(player.id,player.name,player.position,player.jerseyNumber,player.dateOfBirth,player.nationality,player.contractUntil,player.marketValue)
+                stmtTeamsToPlayers.run(teamId,player.id)
+            }
+            deferred.resolve("Added Players for team: "+teamId)
+        }
     });
 
     return deferred.promise
